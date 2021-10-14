@@ -73,7 +73,7 @@ while (true)
             //Offiline
             if(isset($clientData[$uips]['uid']) && !empty($clientData[$uips]['uid']))
             {
-                $data_offline = array('type' => 'status', 'action' => 'offline', 'msg' => '', 'uid' => $clientData[$uips]['uid'], 'sub_id' => $uips, 'uData' => '', 'time' => time());
+                $data_offline = array('type' => 'status', 'action' => 'offline', 'msg' => '', 'uid' => $clientData[$uips]['uid'], 'sub_id' => $uips, 'uData' => [], 'time' => time());
                 $ws->send_message($clients, $data_offline, $changed_socket);
             }
 
