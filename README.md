@@ -7,3 +7,22 @@ Websocket server using PHP. Send and Receive data in JSON format, remove error "
 
 **Run on Windows:**
   - _**Xampp:**_ C:\xampp\php /your-dir/ws.php
+
+**Using on Javascript:**
+
+```
+<script>
+  socketNotice = new WebSocket('wss://your-domain:8089');
+  socketNotice.onopen = function(response)
+  {
+    console.log(response);
+  }
+  socketNotice.onmessage = function(response)
+  { 
+    console.log(response);
+  }
+  socketNotice.onclose = function(response)
+  { 
+    console.log(response);
+  }
+</script>
