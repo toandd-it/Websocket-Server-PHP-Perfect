@@ -6,7 +6,7 @@ Websocket server using PHP. Send and Receive data in JSON format, remove error "
   - _**Apache:**_ php /your-dir/wss.php &
 
 **Run on Windows:**
-  - _**Xampp:**_ C:\xampp\php /your-dir/ws.php
+  - _**Xampp:**_ C:\xampp\php \your-dir\ws.php
 
 **Using on Javascript:**
 
