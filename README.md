@@ -11,7 +11,7 @@ Websocket server using PHP. Send and Receive data in JSON format, remove error "
 **Using on Javascript:**
 
 ```
-<script>
+<script type="text/javascript">
   socketNotice = new WebSocket('wss://your-domain:8089');
   socketNotice.onopen = function(response)
   {
