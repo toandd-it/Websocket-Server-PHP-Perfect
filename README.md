@@ -25,4 +25,5 @@ Websocket server using PHP. Send and Receive data in JSON format, remove error "
   { 
     console.log(response);
   }
+  socketNotice.send(JSON.stringify({type: "status", action: "online", rid: '', receiver: [], msg: "", uid: "_my_id", uData: []}));
 </script>
