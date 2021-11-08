@@ -3,7 +3,6 @@ error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 
 ob_start();
-session_start();
 
 $dir_root = $_SERVER['SCRIPT_FILENAME'];
 $fileNameExt = basename($dir_root);
@@ -17,17 +16,17 @@ $port = 8090;
 include $dir_root.'/class.websocket.php';
 $ws = new wsAction();
 $transport = 'tlsv1.2';
-$ssl = array(
-    'ssl' => array(
-        'local_cert' => '/etc/letsencrypt/live/zetadmin.com/cert.pem',
-        'local_pk' => '/etc/letsencrypt/live/zetadmin.com/privkey.pem',
-        'disable_compression' => true,
-        'verify_peer' => false,
-        'ssltransport' => $transport, // Transport Methods such as 'tlsv1.1', tlsv1.2'
-    )
-);
-$ssl_context = stream_context_create($ssl);
-$server = stream_socket_server($transport . '://' . $host . ':' . $port, $errno, $errstr, STREAM_SERVER_BIND|STREAM_SERVER_LISTEN, $ssl_context);
+$context = stream_context_create();
+
+stream_context_set_option($context, 'ssl', 'local_cert', '/etc/letsencrypt/live/ws.zetadmin.com/cert.pem');
+stream_context_set_option($context, 'ssl', 'local_pk', '/etc/letsencrypt/live/ws.zetadmin.com/privkey.pem');
+stream_context_set_option($context, 'ssl', 'crypto_method', STREAM_CRYPTO_METHOD_TLS_SERVER);
+
+stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
+stream_context_set_option($context, 'ssl', 'verify_peer', false);
+stream_context_set_option($context, 'ssl', 'verify_peer_name', false);
+
+$server = stream_socket_server($transport.'://'.$host.':'.$port, $errno, $errstr, STREAM_SERVER_BIND|STREAM_SERVER_LISTEN, $context);
 if (!$server) 
 {  
     die("$errstr ($errno)"); 
