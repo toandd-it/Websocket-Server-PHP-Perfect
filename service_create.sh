@@ -1,6 +1,6 @@
 sudo touch /usr/lib/systemd/system/phpWs.service
 echo '[Unit]' >> /usr/lib/systemd/system/phpWs.service
-echo 'Description=PBX log service' >> /usr/lib/systemd/system/phpWs.service
+echo 'Description=PHP Websocket service' >> /usr/lib/systemd/system/phpWs.service
 echo 'After=network.target' >> /usr/lib/systemd/system/phpWs.service
 echo '' >> /usr/lib/systemd/system/phpWs.service
 echo '[Service]' >> /usr/lib/systemd/system/phpWs.service
