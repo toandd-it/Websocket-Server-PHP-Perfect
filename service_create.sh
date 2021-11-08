@@ -4,7 +4,7 @@ echo 'Description=PHP Websocket service' >> /usr/lib/systemd/system/phpWs.servic
 echo 'After=network.target' >> /usr/lib/systemd/system/phpWs.service
 echo '' >> /usr/lib/systemd/system/phpWs.service
 echo '[Service]' >> /usr/lib/systemd/system/phpWs.service
-echo 'ExecStart=/usr/local/lsws/lsphp73/bin/php /var/www/public_html/ws.zetadmin.com/wss.php' >> /usr/lib/systemd/system/phpWs.service
+echo 'ExecStart=/usr/local/lsws/lsphp73/bin/php /your-dir/wss.php' >> /usr/lib/systemd/system/phpWs.service
 echo 'Restart=always' >> /usr/lib/systemd/system/phpWs.service
 echo 'User=nobody' >> /usr/lib/systemd/system/phpWs.service
 echo '' >> /usr/lib/systemd/system/phpWs.service
