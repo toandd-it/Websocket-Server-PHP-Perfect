@@ -69,7 +69,7 @@ class wsAction
             }
             if($content != '' && isset($content['type']))
             {
-                fwrite($changed_socket, $this->mask(json_encode($content)));
+                @fwrite($changed_socket, $this->mask(json_encode($content)));
             }
         }
     }
