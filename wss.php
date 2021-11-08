@@ -1,6 +1,20 @@
 <?php
-include 'class.websocket.php';
-include 'config.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 'On');
+
+ob_start();
+session_start();
+
+$dir_root = $_SERVER['SCRIPT_FILENAME'];
+$fileNameExt = basename($dir_root);
+$dir_root = explode('/'.$fileNameExt, $dir_root)[0];
+$_SERVER['DOCUMENT_ROOT'] = $dir_root;
+$session_id = session_id();
+
+$host = '0.0.0.0';
+$port = 8090;
+
+include $dir_root.'/class.websocket.php';
 $ws = new wsAction();
 $transport = 'tlsv1.2';
 $ssl = array(
