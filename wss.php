@@ -75,8 +75,19 @@ while (true)
             //Offiline
             if(!empty($clientData[$ip]['uid']))
             {
-                $data_offline = array('type' => 'status', 'action' => 'offline', 'msg' => '', 'uid' => $clientData[$ip]['uid'], 'sub_id' => $ip, 'uData' => [], 'time' => time());
-                $ws->send_message($clients, $data_offline, $changed_socket);
+                $data_offline = ['type' => 'status', 'action' => 'offline', 'msg' => '', 'uid' => $clientData[$ip]['uid'], 'rid' => '', 'sub_id' => $ip, 'uData' => [], 'time' => time()];
+                if(!empty($clientData[$ip]['rid']))
+                {
+                    $data_offline['rid'] = $clientData[$ip]['rid'];
+                    if(!empty($roomData[$clientData[$ip]['rid']]))
+                    {
+                        $ws->send_message($roomData[$clientData[$ip]['rid']], $data_offline, $changed_socket);
+                    }
+                }
+                else
+                {
+                    $ws->send_message($clients, $data_offline, $changed_socket);
+                }
             }
 
             fclose($changed_socket);
@@ -96,7 +107,12 @@ while (true)
 				
 				if(!empty($msg_check['uid']) && !empty($ip))
                 {
-                    $clientData[$msg_check['uid']][] = $msg_check['uid'];
+                    $clientData[$ip]['uid'] = $msg_check['uid'];
+                }
+
+                if(!empty($msg_check['rid']) && !empty($ip))
+                {
+                    $clientData[$ip]['rid'] = $msg_check['rid'];
                 }
 
                 if(!empty($msg_check['rid']) && !empty($client))
