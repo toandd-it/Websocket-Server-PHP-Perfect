@@ -22,7 +22,6 @@ stream_context_set_option($context, 'ssl', 'local_cert', '/usr/local/lsws/conf/v
 stream_context_set_option($context, 'ssl', 'local_pk', '/usr/local/lsws/conf/vhosts/shareoffice.vn/ssl/Private.key');
 stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
 stream_context_set_option($context, 'ssl', 'verify_peer', false);
-//stream_context_set_option($context, 'ssl', 'ciphers', 'DHE-RSA-AES256-SHA:LONG-CIPHER');
 
 $server = stream_socket_server($transport.'://'.$host.':'.$port, $errno, $errstr, STREAM_SERVER_BIND|STREAM_SERVER_LISTEN, $context);
 if (!$server) 
@@ -100,7 +99,7 @@ while (true)
                     $clientData[$msg_check['uid']][] = $msg_check['uid'];
                 }
 
-                if(empty($msg_check['rid']) && !empty($client))
+                if(!empty($msg_check['rid']) && !empty($client))
                 {
                     $roomData[$msg_check['rid']][] = $client;
                 }
