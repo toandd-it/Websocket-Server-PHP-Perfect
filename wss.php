@@ -20,11 +20,8 @@ $context = stream_context_create();
 
 stream_context_set_option($context, 'ssl', 'local_cert', '/etc/letsencrypt/live/ws.zetadmin.com/cert.pem');
 stream_context_set_option($context, 'ssl', 'local_pk', '/etc/letsencrypt/live/ws.zetadmin.com/privkey.pem');
-stream_context_set_option($context, 'ssl', 'crypto_method', STREAM_CRYPTO_METHOD_TLS_SERVER);
-
 stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
 stream_context_set_option($context, 'ssl', 'verify_peer', false);
-stream_context_set_option($context, 'ssl', 'verify_peer_name', false);
 
 $server = stream_socket_server($transport.'://'.$host.':'.$port, $errno, $errstr, STREAM_SERVER_BIND|STREAM_SERVER_LISTEN, $context);
 if (!$server) 
@@ -79,8 +76,6 @@ while (true)
         $uips = str_replace(array('.', ':'), array('', '_'), $ip);
         $buffer = stream_get_contents($changed_socket);
         
-        $server_idle=time();
-        
         if ($buffer == false) 
         {
             //Offiline
@@ -118,11 +113,6 @@ while (true)
                 $ws->send_message($clients, $msg_check, $changed_socket);
             }
         }
-    }
-    
-    if (time()-$server_idle>3) 
-    {
-        usleep(5);
     }
 }
 fclose($server);
