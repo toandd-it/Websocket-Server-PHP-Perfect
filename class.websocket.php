@@ -61,13 +61,12 @@ class wsAction
         foreach($clients as $changed_socket)
         {
             $ip = stream_socket_get_name($changed_socket, true);
-            $sub_id = str_replace(array('.', ':'), array('', '_'), $ip);
-            
+            //$sub_id = str_replace(array('.', ':'), array('', '_'), $ip);
             if($channel == $changed_socket)
             {
                 continue;
             }
-            if($content != '' && isset($content['type']))
+            if(!empty($content) && !empty($content['type']))
             {
                 @fwrite($changed_socket, $this->mask(json_encode($content)));
             }
