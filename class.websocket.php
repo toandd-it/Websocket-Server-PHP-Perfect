@@ -48,7 +48,7 @@ class wsAction
         "Upgrade: websocket\r\n" .
         "Connection: Upgrade\r\n" .
         "WebSocket-Origin: $host\r\n" .
-        "WebSocket-Location: ws://$host:$port\r\n".
+        "WebSocket-Location: $protocol://$host:$port\r\n".
         "Sec-WebSocket-Version: 13\r\n" .
         "Sec-WebSocket-Accept:$secAccept\r\n\r\n";
         fwrite($client, $upgrade);
