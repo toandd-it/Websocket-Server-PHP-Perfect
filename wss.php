@@ -10,7 +10,7 @@ $dir_root = explode('/'.$fileNameExt, $dir_root)[0];
 $_SERVER['DOCUMENT_ROOT'] = $dir_root;
 $session_id = session_id();
 
-$host = '0.0.0.0';
+$host = 'shareoffice.vn';
 $port = 8090;
 
 include $dir_root.'/class.websocket.php';
@@ -18,10 +18,11 @@ $ws = new wsAction();
 $transport = 'tlsv1.2';
 $context = stream_context_create();
 
-stream_context_set_option($context, 'ssl', 'local_cert', '/etc/letsencrypt/live/ws.zetadmin.com/cert.pem');
-stream_context_set_option($context, 'ssl', 'local_pk', '/etc/letsencrypt/live/ws.zetadmin.com/privkey.pem');
+stream_context_set_option($context, 'ssl', 'local_cert', '/usr/local/lsws/conf/vhosts/shareoffice.vn/ssl/shareoffice_vn_cert.pem');
+stream_context_set_option($context, 'ssl', 'local_pk', '/usr/local/lsws/conf/vhosts/shareoffice.vn/ssl/Private.key');
 stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
 stream_context_set_option($context, 'ssl', 'verify_peer', false);
+//stream_context_set_option($context, 'ssl', 'ciphers', 'DHE-RSA-AES256-SHA:LONG-CIPHER');
 
 $server = stream_socket_server($transport.'://'.$host.':'.$port, $errno, $errstr, STREAM_SERVER_BIND|STREAM_SERVER_LISTEN, $context);
 if (!$server) 
@@ -32,9 +33,9 @@ $clients = array($server);
 $write  = NULL;
 $except = NULL;
 
-$clientData = array();
-$roomData = array();
-$receiverData = array();
+$clientData = [];
+$roomData = [];
+$receiverData = [];
 
 $server_idle = time();
 while (true) 
@@ -44,17 +45,12 @@ while (true)
     if (in_array($server, $changed)) 
     {
         $client = stream_socket_accept($server);
-
         if (!$client){ continue; }
         
         $clients[] = $client;
-        $ip = stream_socket_get_name( $client, true );
-        $uip = str_replace(array('.', ':'), array('', '_'), $ip);
-        
-        if(!isset($clientData[$uip]['uid']) || isset($clientData[$uip]['uid']) != '')
-        {
-            $clientData[$uip]['uid'] = '';
-        }
+		
+        //$ip = stream_socket_get_name( $client, true );
+        //$uip = str_replace(array('.', ':'), array('', '_'), $ip);
         
         //Online
         stream_set_blocking($client, true);
@@ -64,33 +60,32 @@ while (true)
         stream_set_blocking($client, false);
         $found_socket = array_search($server, $changed);
         unset($changed[$found_socket]);
-        if(!empty($clientData[$uip]))
-        {
-            //unset($clientData[$uip]);
-        }
     }
     
     foreach ($changed as $changed_socket) 
     {
-        $ip = stream_socket_get_name( $changed_socket, true );
-        $uips = str_replace(array('.', ':'), array('', '_'), $ip);
+		if(!empty($changed_socket))
+		{
+			$ip = stream_socket_get_name( $changed_socket, true );
+		}
+
         $buffer = stream_get_contents($changed_socket);
         
         if ($buffer == false) 
         {
             //Offiline
-            if(isset($clientData[$uips]['uid']) && !empty($clientData[$uips]['uid']))
+            if(!empty($clientData[$ip]['uid']))
             {
-                $data_offline = array('type' => 'status', 'action' => 'offline', 'msg' => '', 'uid' => $clientData[$uips]['uid'], 'sub_id' => $uips, 'uData' => [], 'time' => time());
+                $data_offline = array('type' => 'status', 'action' => 'offline', 'msg' => '', 'uid' => $clientData[$ip]['uid'], 'sub_id' => $ip, 'uData' => [], 'time' => time());
                 $ws->send_message($clients, $data_offline, $changed_socket);
             }
 
             fclose($changed_socket);
             $found_socket = array_search($changed_socket, $clients);
             unset($clients[$found_socket]);
-            if(!empty($clientData[$uips]))
+            if(!empty($clientData[$ip]))
             {
-                unset($clientData[$uips]);
+                unset($clientData[$ip]);
             }
         }
         else
@@ -99,18 +94,25 @@ while (true)
             if (!empty($unmasked)) 
             { 
                 $msg_check = json_decode($unmasked, true);
-                if(isset($clientData[$uips]))
+				
+				if(!empty($msg_check['uid']) && !empty($ip))
                 {
-                    if(isset($msg_check['uid']) && !empty($msg_check['uid']))
-                    {
-                        $clientData[$uips]['uid'] = $msg_check['uid'];
-                    }
-                    if(isset($msg_check['rid']) && !empty($msg_check['uid']))
-                    {
-                        $roomData[$msg_check['rid']][] = $msg_check['uid'];
-                    }
+                    $clientData[$msg_check['uid']][] = $msg_check['uid'];
                 }
-                $ws->send_message($clients, $msg_check, $changed_socket);
+
+                if(empty($msg_check['rid']) && !empty($client))
+                {
+                    $roomData[$msg_check['rid']][] = $client;
+                }
+                
+				if(!empty($msg_check['rid']) && !empty($roomData[$msg_check['rid']]))
+				{
+					$ws->send_message($roomData[$msg_check['rid']], $msg_check, $changed_socket);
+				}
+				else
+				{
+					$ws->send_message($clients, $msg_check, $changed_socket);
+				}
             }
         }
     }
