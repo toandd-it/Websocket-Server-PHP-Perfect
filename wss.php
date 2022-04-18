@@ -47,11 +47,7 @@ while (true)
         if (!$client){ continue; }
         
         $clients[] = $client;
-		
-        //$ip = stream_socket_get_name( $client, true );
-        //$uip = str_replace(array('.', ':'), array('', '_'), $ip);
         
-        //Online
         stream_set_blocking($client, true);
         $headers = fread($client, 1500);
         $ws->handshake($client, $headers, $host, $port, 'wss');
@@ -81,11 +77,13 @@ while (true)
                     $data_offline['rid'] = $clientData[$ip]['rid'];
                     if(!empty($roomData[$clientData[$ip]['rid']]))
                     {
+                        // send msg offline to all client on a room ID
                         $ws->send_message($roomData[$clientData[$ip]['rid']], $data_offline, $changed_socket);
                     }
                 }
                 else
                 {
+                    // send msg offline to all client on server
                     $ws->send_message($clients, $data_offline, $changed_socket);
                 }
             }
@@ -122,10 +120,12 @@ while (true)
                 
 				if(!empty($msg_check['rid']) && !empty($roomData[$msg_check['rid']]))
 				{
+                    // send msg to all client on a room ID
 					$ws->send_message($roomData[$msg_check['rid']], $msg_check, $changed_socket);
 				}
 				else
 				{
+                    // send msg to all client on server
 					$ws->send_message($clients, $msg_check, $changed_socket);
 				}
             }
