@@ -10,7 +10,7 @@ $dir_root = explode('/'.$fileNameExt, $dir_root)[0];
 $_SERVER['DOCUMENT_ROOT'] = $dir_root;
 $session_id = session_id();
 
-$host = 'shareoffice.vn';
+$host = 'ws.zetadmin.com';
 $port = 8090;
 
 include $dir_root.'/class.websocket.php';
@@ -47,7 +47,7 @@ while (true)
         if (!$client){ continue; }
         
         $clients[] = $client;
-        
+
         stream_set_blocking($client, true);
         $headers = fread($client, 1500);
         $ws->handshake($client, $headers, $host, $port, 'wss');
