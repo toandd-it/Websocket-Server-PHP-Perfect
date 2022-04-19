@@ -1,5 +1,9 @@
 sudo firewall-cmd --zone=public --add-port=8090/tcp --permanent
 sudo firewall-cmd --reload
+
+rm -rf /usr/lib/systemd/system/phpWs.service
+rm -rf /etc/systemd/system/phpWs.service
+
 sudo touch /usr/lib/systemd/system/phpWs.service
 echo '[Unit]' >> /usr/lib/systemd/system/phpWs.service
 echo 'Description=PHP Websocket service' >> /usr/lib/systemd/system/phpWs.service
