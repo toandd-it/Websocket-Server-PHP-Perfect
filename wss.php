@@ -66,54 +66,54 @@ while (true)
 		if(!empty($changed_socket))
 		{
 			$ip = stream_socket_get_name( $changed_socket, true );
+			$buffer = stream_get_contents($changed_socket);
+
+			if ($buffer == false) 
+			{
+				//Offiline
+				if(!empty($roomData[$clientData[$ip]['rid']]))
+				{
+					$data_offline = array('rid' => $clientData[$ip]['rid'], 'sub_rid' => '', 'type' => 'status', 'status' => 'offline', 'action' => 'offline', 'msg' => '', 'uid' => $clientData[$ip]['uid'], 'sub_id' => $ip, 'uData' => [], 'time' => time());
+					$ws->send_message($roomData[$clientData[$ip]['rid']], $data_offline, $changed_socket);
+				}
+
+				fclose($changed_socket);
+				$found_socket = array_search($changed_socket, $clients);
+				unset($clients[$found_socket]);
+				if(!empty($clientData[$ip]))
+				{
+					unset($clientData[$ip]);
+				}
+			}
+			else
+			{
+				$unmasked = $ws->unmask($buffer);
+				if (!empty($unmasked)) 
+				{ 
+					$msg_check = json_decode($unmasked, true);
+					
+					if(!empty($msg_check['uid']) && !empty($ip) && !empty($msg_check['rid']))
+					{
+						$clientData[$ip]['uid'] = $msg_check['uid'];
+						$clientData[$ip]['rid'] = $msg_check['rid'];
+					}
+
+					if(!empty($msg_check['rid']) && !empty($changed_socket))
+					{
+						$roomData[$msg_check['rid']][] = $changed_socket;
+					}
+					
+					if(!empty($msg_check['rid']) && !empty($roomData[$msg_check['rid']]))
+					{
+						$ws->send_message($roomData[$msg_check['rid']], $msg_check, $changed_socket);
+					}
+					else
+					{
+						$ws->send_message($clients, $msg_check, $changed_socket);
+					}
+				}
+			}
 		}
-
-        $buffer = stream_get_contents($changed_socket);
-        
-        if ($buffer == false) 
-        {
-            //Offiline
-            if(!empty($clientData[$ip]['uid']))
-            {
-                $data_offline = array('type' => 'status', 'action' => 'offline', 'msg' => '', 'uid' => $clientData[$ip]['uid'], 'sub_id' => $ip, 'uData' => [], 'time' => time());
-                $ws->send_message($clients, $data_offline, $changed_socket);
-            }
-
-            fclose($changed_socket);
-            $found_socket = array_search($changed_socket, $clients);
-            unset($clients[$found_socket]);
-            if(!empty($clientData[$ip]))
-            {
-                unset($clientData[$ip]);
-            }
-        }
-        else
-        {
-            $unmasked = $ws->unmask($buffer);
-            if (!empty($unmasked)) 
-            { 
-                $msg_check = json_decode($unmasked, true);
-				
-				if(!empty($msg_check['uid']) && !empty($ip))
-                {
-                    $clientData[$msg_check['uid']][] = $msg_check['uid'];
-                }
-
-                if(!empty($msg_check['rid']) && !empty($client))
-                {
-                    $roomData[$msg_check['rid']][] = $client;
-                }
-                
-				if(!empty($msg_check['rid']) && !empty($roomData[$msg_check['rid']]))
-				{
-					$ws->send_message($roomData[$msg_check['rid']], $msg_check, $changed_socket);
-				}
-				else
-				{
-					$ws->send_message($clients, $msg_check, $changed_socket);
-				}
-            }
-        }
     }
 }
 fclose($server);
