@@ -18,7 +18,7 @@ $ws = new wsAction();
 $transport = 'tlsv1.2';
 $context = stream_context_create();
 
-stream_context_set_option($context, 'ssl', 'local_cert', '/etc/letsencrypt/live/api.zetadmin.com/cert.pem');
+stream_context_set_option($context, 'ssl', 'local_cert', '/etc/letsencrypt/live/api.zetadmin.com/fullchain.pem');
 stream_context_set_option($context, 'ssl', 'local_pk', '/etc/letsencrypt/live/api.zetadmin.com/privkey.pem');
 stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
 stream_context_set_option($context, 'ssl', 'verify_peer', false);
