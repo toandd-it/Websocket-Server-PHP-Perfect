@@ -65,7 +65,7 @@ while (true)
 			if ($buffer == false) 
 			{
 				//Offiline
-				if(!empty($roomData[$clientData[$ip]['rid']]))
+				if(!empty($clientData[$ip]) && !empty($roomData[$clientData[$ip]['rid']]))
 				{
 					$data_offline = array('rid' => $clientData[$ip]['rid'], 'sub_rid' => '', 'type' => 'status', 'status' => 'offline', 'action' => 'offline', 'msg' => '', 'uid' => $clientData[$ip]['uid'], 'sub_id' => $ip, 'uData' => [], 'time' => time());
 					$ws->send_message($roomData[$clientData[$ip]['rid']], $data_offline, $changed_socket);
