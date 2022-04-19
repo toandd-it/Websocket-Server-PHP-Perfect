@@ -10,7 +10,7 @@ $dir_root = explode('/'.$fileNameExt, $dir_root)[0];
 $_SERVER['DOCUMENT_ROOT'] = $dir_root;
 $session_id = session_id();
 
-$host = 'ws.zetadmin.com';
+$host = 'api.zetadmin.com';
 $port = 8090;
 
 include $dir_root.'/class.websocket.php';
@@ -47,7 +47,11 @@ while (true)
         if (!$client){ continue; }
         
         $clients[] = $client;
-
+		
+        //$ip = stream_socket_get_name( $client, true );
+        //$uip = str_replace(array('.', ':'), array('', '_'), $ip);
+        
+        //Online
         stream_set_blocking($client, true);
         $headers = fread($client, 1500);
         $ws->handshake($client, $headers, $host, $port, 'wss');
@@ -71,21 +75,8 @@ while (true)
             //Offiline
             if(!empty($clientData[$ip]['uid']))
             {
-                $data_offline = ['type' => 'status', 'action' => 'offline', 'msg' => '', 'uid' => $clientData[$ip]['uid'], 'rid' => '', 'sub_id' => $ip, 'uData' => [], 'time' => time()];
-                if(!empty($clientData[$ip]['rid']))
-                {
-                    $data_offline['rid'] = $clientData[$ip]['rid'];
-                    if(!empty($roomData[$clientData[$ip]['rid']]))
-                    {
-                        // send msg offline to all client on a room ID
-                        $ws->send_message($roomData[$clientData[$ip]['rid']], $data_offline, $changed_socket);
-                    }
-                }
-                else
-                {
-                    // send msg offline to all client on server
-                    $ws->send_message($clients, $data_offline, $changed_socket);
-                }
+                $data_offline = array('type' => 'status', 'action' => 'offline', 'msg' => '', 'uid' => $clientData[$ip]['uid'], 'sub_id' => $ip, 'uData' => [], 'time' => time());
+                $ws->send_message($clients, $data_offline, $changed_socket);
             }
 
             fclose($changed_socket);
@@ -105,12 +96,7 @@ while (true)
 				
 				if(!empty($msg_check['uid']) && !empty($ip))
                 {
-                    $clientData[$ip]['uid'] = $msg_check['uid'];
-                }
-
-                if(!empty($msg_check['rid']) && !empty($ip))
-                {
-                    $clientData[$ip]['rid'] = $msg_check['rid'];
+                    $clientData[$msg_check['uid']][] = $msg_check['uid'];
                 }
 
                 if(!empty($msg_check['rid']) && !empty($client))
@@ -120,12 +106,10 @@ while (true)
                 
 				if(!empty($msg_check['rid']) && !empty($roomData[$msg_check['rid']]))
 				{
-                    // send msg to all client on a room ID
 					$ws->send_message($roomData[$msg_check['rid']], $msg_check, $changed_socket);
 				}
 				else
 				{
-                    // send msg to all client on server
 					$ws->send_message($clients, $msg_check, $changed_socket);
 				}
             }
